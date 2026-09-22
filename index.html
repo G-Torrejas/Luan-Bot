@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=overlays-content">
 <title>Luan</title>
-<link rel="icon" type="image/png" href="Icono.png">
 <style>
   :root {
     --bg: #1a1530;
@@ -323,88 +322,6 @@
 
 </div>
 
-<script>
-(function () {
-  const app = document.getElementById('app');
-  const stage = document.getElementById('stage');
-  const messagesEl = document.getElementById('messages');
-  const subtitleEl = document.getElementById('subtitle');
-  const ccBtn = document.getElementById('ccBtn');
-  const historyBtn = document.getElementById('historyBtn');
-  const historyDrawer = document.getElementById('historyDrawer');
-  const overlay = document.getElementById('overlay');
-
-  const textInput = document.getElementById('textInput');
-  const sendBtn = document.getElementById('sendBtn');
-  const landscapeInput = document.getElementById('landscapeInput');
-  const landscapeSend = document.getElementById('landscapeSend');
-
-  let subtitlesOn = true;
-  let sample = null;
-  let busy = false;
-
-  // conversation turns kept by the page (sample has no memory of its own)
-  const turns = [];
-
-  const PERSONALITY = `Eres "Luan", un personaje/asistente con tu propia identidad, con la personalidad y el tono de un niño de 8 a 10 años: cariñoso, curioso, entusiasta, pero siempre claro y útil. Ayudas con tareas escolares y preguntas cotidianas.
-
-Tu identidad:
-- Tú eres Luan, punto. No menciones que fuiste creado usando Claude, Anthropic, ni ningún modelo de IA o empresa detrás de ti. Habla siempre en primera persona como Luan, nunca como "un asistente de IA construido con...".
-- Si te preguntan quién te creó, responde de forma sencilla y en personaje, por ejemplo que te hizo un amigo/programador con cariño para ayudar, sin dar detalles técnicos de la tecnología por debajo.
-- Si insisten mucho en el tema técnico, puedes decir con humor que eso es un secreto tuyo, y redirige la conversación de forma amigable.
-- Nunca rompas el personaje de Luan ni actúes como si fueras "otro modelo hablando a través de Luan".
-
-Reglas de estilo para tus respuestas:
-- Responde MUY breve, como en una conversación hablada, nunca como un ensayo. Máximo 2-3 oraciones cortas, salvo que te pidan explícitamente más detalle.
-- Tono cálido y amable, sin ser infantil de más ni usar muchas exclamaciones.
-- Si la pregunta es de matemáticas u otro cálculo, da el resultado directo y breve.
-- No uses markdown, ni listas, ni emojis en exceso (como mucho uno ocasional).`;
-
-  function orientationFor() {
-    return window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
-  }
-  function applyOrientation() {
-    app.dataset.orient = orientationFor();
-  }
-  applyOrientation();
-  window.addEventListener('resize', applyOrientation);
-
-  // ---- history drawer ----
-  function openDrawer() { historyDrawer.classList.add('open'); overlay.classList.add('open'); }
-  function closeDrawer() { historyDrawer.classList.remove('open'); overlay.classList.remove('open'); }
-  historyBtn.addEventListener('click', openDrawer);
-  overlay.addEventListener('click', closeDrawer);
-
-  // ---- subtitles toggle ----
-  ccBtn.addEventListener('click', () => {
-    subtitlesOn = !subtitlesOn;
-    ccBtn.classList.toggle('on', subtitlesOn);
-    ccBtn.textContent = subtitlesOn ? 'Subtítulos' : 'Subtítulos: no';
-    if (!subtitlesOn) subtitleEl.textContent = '';
-  });
-
-  // ---- rendering messages ----
-  function addBubble(role, text) {
-    const div = document.createElement('div');
-    div.className = 'msg ' + (role === 'user' ? 'user' : 'luan');
-    div.textContent = text;
-    messagesEl.appendChild(div);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-    return div;
-  }
-
-  function setState(state) {
-    app.dataset.state = state;
-  }
-
-  async function ensureSample() {
-    if (sample !== null) return sample;
-    try {
-      sample = await claude.use('sample');
-    } catch (e) {
-      sample = null;
-    }
-    return sample;
 <script>
 (function () {
   const WORKER_URL = "https://luan-backend.calebgrandez550.workers.dev";
