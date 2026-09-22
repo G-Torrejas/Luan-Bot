@@ -1,0 +1,30 @@
+{
+  "name": "Luan",
+  "short_name": "Luan",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1a1530",
+  "theme_color": "#1a1530",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "Icono.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "Icono.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "Icono.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
