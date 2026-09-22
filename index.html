@@ -405,6 +405,60 @@ Reglas de estilo para tus respuestas:
       sample = null;
     }
     return sample;
+<script>
+(function () {
+  const WORKER_URL = "https://luan-backend.calebgrandez550.workers.dev";
+
+  const app = document.getElementById('app');
+  const stage = document.getElementById('stage');
+  const messagesEl = document.getElementById('messages');
+  const subtitleEl = document.getElementById('subtitle');
+  const ccBtn = document.getElementById('ccBtn');
+  const historyBtn = document.getElementById('historyBtn');
+  const historyDrawer = document.getElementById('historyDrawer');
+  const overlay = document.getElementById('overlay');
+
+  const textInput = document.getElementById('textInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const landscapeInput = document.getElementById('landscapeInput');
+  const landscapeSend = document.getElementById('landscapeSend');
+
+  let subtitlesOn = true;
+  let busy = false;
+  const turns = [];
+
+  function orientationFor() {
+    return window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+  }
+  function applyOrientation() {
+    app.dataset.orient = orientationFor();
+  }
+  applyOrientation();
+  window.addEventListener('resize', applyOrientation);
+
+  function openDrawer() { historyDrawer.classList.add('open'); overlay.classList.add('open'); }
+  function closeDrawer() { historyDrawer.classList.remove('open'); overlay.classList.remove('open'); }
+  historyBtn.addEventListener('click', openDrawer);
+  overlay.addEventListener('click', closeDrawer);
+
+  ccBtn.addEventListener('click', () => {
+    subtitlesOn = !subtitlesOn;
+    ccBtn.classList.toggle('on', subtitlesOn);
+    ccBtn.textContent = subtitlesOn ? 'Subtítulos' : 'Subtítulos: no';
+    if (!subtitlesOn) subtitleEl.textContent = '';
+  });
+
+  function addBubble(role, text) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + (role === 'user' ? 'user' : 'luan');
+    div.textContent = text;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return div;
+  }
+
+  function setState(state) {
+    app.dataset.state = state;
   }
 
   async function ask(question) {
@@ -421,37 +475,21 @@ Reglas de estilo para tus respuestas:
     if (subtitlesOn) subtitleEl.textContent = '...';
     setState('thinking');
 
-    const s = await ensureSample();
-    if (!s) {
-      pending.textContent = 'No puedo pensar ahora mismo (sin acceso a IA en esta vista).';
-      pending.classList.remove('pending');
-      setState('idle');
-      busy = false;
-      sendBtn.disabled = false;
-      landscapeSend.disabled = false;
-      return;
-    }
-
     try {
-      const input = [{ role: 'user', content: PERSONALITY }, ...turns];
-      const { text } = await s(input, {
-        cache: false,
-        modelTier: 'quick',
-        onText: ({ text }) => {
-          pending.textContent = text;
-          pending.classList.remove('pending');
-          if (subtitlesOn) subtitleEl.textContent = text;
-          setState('talking');
-        },
+      const res = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: turns }),
       });
+      const data = await res.json();
+      const text = data.text || 'No pude pensar bien esta vez.';
       pending.textContent = text;
       pending.classList.remove('pending');
       if (subtitlesOn) subtitleEl.textContent = text;
       turns.push({ role: 'assistant', content: text });
+      setState('talking');
     } catch (e) {
-      const msg = e && e.code === 'not_granted'
-        ? 'Necesito tu permiso para pensar — vuelve a intentarlo.'
-        : 'No pude responder esta vez. ¿Lo intentamos de nuevo?';
+      const msg = 'No pude conectarme. ¿Lo intentamos de nuevo?';
       pending.textContent = msg;
       pending.classList.remove('pending');
       if (subtitlesOn) subtitleEl.textContent = msg;
@@ -480,7 +518,6 @@ Reglas de estilo para tus respuestas:
   wireInput(textInput, sendBtn);
   wireInput(landscapeInput, landscapeSend);
 
-  // greet
   setTimeout(() => {
     const greet = '¡Hola! Soy Luan. Pregúntame lo que quieras.';
     addBubble('luan', greet);
